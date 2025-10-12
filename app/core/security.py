@@ -21,7 +21,7 @@ def get_pwd_hash(pwd: str) -> str:
 
 
 # verificar si el password enviado coincide con su hash
-def verify_password(plain_pwd: str, hashed_pwd: str) -> bool:
+def verify_pwd(plain_pwd: str, hashed_pwd: str) -> bool:
     return pwd_context.verify(plain_pwd, hashed_pwd)
 
 

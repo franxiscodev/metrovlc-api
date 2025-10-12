@@ -6,6 +6,7 @@ python -m tests.test_security
 """
 
 from app.core.security import get_pwd_hash
+from app.core.security import verify_pwd
 
 
 def test_password_hashing():
@@ -17,6 +18,20 @@ def test_password_hashing():
     print(f"-Contraseña original: {password}")
     print(f"-Hash generado: {hashed[:20]}...")
     print("\n")
+    print("-"*50)
+
+    is_valid = verify_pwd(password, hashed)
+    print(f"-Password: {password}")
+    print(f"-Resultado: {'Verificada ok' if is_valid else 'Inválida'}")
+
+
+"""
+falta el test del JWT, pero quiero avanzar con otros temas
+"""
+
+
+def test_jwt_tokens():
+    pass
 
 
 if __name__ == "__main__":
