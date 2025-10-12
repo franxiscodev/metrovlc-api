@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+
+# Virtual Environment
+.venv/
+.venv
+
+# Environment variables
+.env
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+
+# FastAPI
+.pytest_cache/
+
