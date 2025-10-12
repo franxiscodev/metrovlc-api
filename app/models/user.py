@@ -27,7 +27,7 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
-    # definir las relaciones
+    # definir las relaciones con las estaciones
     favorite_stations = relationship(
         "Station",
         secondary=user_favorite_stations,
