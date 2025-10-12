@@ -1,5 +1,8 @@
 """
 Test de password y JWT
+
+ejecutar desde raiz
+python -m tests.test_security
 """
 
 from app.core.security import get_pwd_hash
@@ -12,7 +15,7 @@ def test_password_hashing():
     hashed = get_pwd_hash(password)
 
     print(f"-Contraseña original: {password}")
-    print(f"-Hash generado: {hashed[:72]}...")
+    print(f"-Hash generado: {hashed[:20]}...")
     print("\n")
 
 

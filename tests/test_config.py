@@ -1,3 +1,9 @@
+"""
+Test de configuraciones
+ejecutar
+python -m tests.test_config
+"""
+
 from app.core.config import settings
 print("=== Configuración general de la app ===")
 print(f"Proyecto: {settings.PROJECT_NAME}")
