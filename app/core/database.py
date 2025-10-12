@@ -35,6 +35,7 @@ def get_db():
 
 def init_db():
     # from app.models import tablausuarios, tablaestaciones
+    from app.models import user, station
     # create_all
-    # Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     print("base creada ok!")
