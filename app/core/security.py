@@ -40,7 +40,7 @@ def create_acces_token(data: dict) -> str:
 
 
 # decodificar y validar token
-def decode_access_token(token: str):
+def decode_access_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(
             token,
@@ -50,3 +50,14 @@ def decode_access_token(token: str):
         return payload
     except JWTError:
         return None
+
+
+# verificar el token y extraer el usuario
+def verify_token(token: str) -> Optional[str]:
+    payload = decode_access_token(token)
+    if payload is None:
+        return None
+
+    username: str = payload.get("sub")
+
+    return username
