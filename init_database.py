@@ -6,6 +6,8 @@ ejecutar
     python init_database.py
 """
 
+import os
+import csv
 from app.core.database import engine, SessionLocal, Base
 from app.models.user import User
 from app.models.station import Station
@@ -27,7 +29,36 @@ def load_stations_from_csv():
     print("CARGANDO LAS ESTACIONES DEL CSV")
     print("-"*50)
 
-    print("OK tables")
+    csv_path = "data/estaciones_metro.csv"
+    if not os.path.exists(csv_path):
+        print(
+            f"Error no se encuentra el archivo CSV {csv_path} de las estaciones")
+
+    db = SessionLocal()
+
+    # leer el csv
+    with open(csv_path, 'r', encoding='utf-8') as file:
+
+        reader = csv.DictReader(file, delimiter=';')
+        print(f"Columnas disponibles: {reader.fieldnames}")
+
+        for row in reader:
+            print("*"*50)
+            print(row['gid'])
+            print("*"*50)
+            station = Station(
+                gid=int(row['gid']),
+                codigo=row['Código'].strip(),
+                nombre=row['Nombre'].strip(),
+                nombre_normalizado=normalize_text(row['Nombre']),
+                linea=row['Línea'].strip(),
+                geo_point_2d=row['geo_point_2d'].strip()
+            )
+            db.add(station)
+
+        db.commit()
+
+    print("OK estaciones cargados")
 
 
 def main():
