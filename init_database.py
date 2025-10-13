@@ -28,3 +28,16 @@ def load_stations_from_csv():
     print("-"*50)
 
     print("OK tables")
+
+
+def main():
+    try:
+        create_tables()
+        load_stations_from_csv()
+    except Exception as e:
+        print(f"Error mientras inicializo: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    main()
