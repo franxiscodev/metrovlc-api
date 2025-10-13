@@ -37,15 +37,13 @@ def load_stations_from_csv():
     db = SessionLocal()
 
     # leer el csv
-    with open(csv_path, 'r', encoding='utf-8') as file:
+    # problemas al cargar solo con utf-8 solución encontrada encoding='utf-8-sig'
+    with open(csv_path, 'r', encoding='utf-8-sig') as file:
 
         reader = csv.DictReader(file, delimiter=';')
         print(f"Columnas disponibles: {reader.fieldnames}")
 
         for row in reader:
-            print("*"*50)
-            print(row['gid'])
-            print("*"*50)
             station = Station(
                 gid=int(row['gid']),
                 codigo=row['Código'].strip(),
