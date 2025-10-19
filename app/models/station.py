@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Table, ForeignKey
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 # la Base declarativa
 from app.core.database import Base
 # el modelo de User para las relaciones con las estaciones

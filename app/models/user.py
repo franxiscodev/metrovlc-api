@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Table, ForeignKey
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 # la Base declarativa
 from app.core.database import Base
+# from app.models.user_station import user_favorite_stations
 
-# tabla de relaciones mucas a muchas entre los usuarios y sus estaciones favoritas
 user_favorite_stations = Table(
     'user_favorite_stations',
     Base.metadata,
@@ -12,7 +12,7 @@ user_favorite_stations = Table(
         'users.id', ondelete='CASCADE'), primary_key=True),
     Column('station_id', Integer, ForeignKey(
         'stations.id', ondelete='CASCADE'), primary_key=True),
-    Column('added_at', DateTime, server_default=func.now())
+    Column('added_at', DateTime(timezone=True), server_default=func.now())
 )
 
 

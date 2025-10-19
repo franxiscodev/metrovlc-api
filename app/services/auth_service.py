@@ -4,7 +4,7 @@ Registro - Login - Validación
 """
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.user import User
+from app.models import User
 from app.schemas.user import UserRegister, UserLogin
 from app.core.security import get_pwd_hash, verify_pwd, create_acces_token
 
@@ -57,8 +57,8 @@ def autenticate_user(db: Session, login_data: UserLogin) -> User:
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    verify_pwd = verify_pwd(login_data.pwd, user.hashed_pwd)
-    if not verify_pwd:
+    # verify_pwd = verify_pwd(login_data.pwd, user.hashed_pwd)
+    if not verify_pwd(login_data.pwd, user.hashed_pwd):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales no válidas",
