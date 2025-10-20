@@ -2,7 +2,7 @@
 Aplicación principal de FastAPI (versión temporal).
 """
 from fastapi import FastAPI
-from app.api.v1 import auth
+from app.api.v1 import auth, users
 from app.core.config import settings
 
 # Crear instancia de FastAPI
@@ -14,3 +14,5 @@ app = FastAPI(
 # Incluir routers
 app.include_router(
     auth.router, prefix=f"{settings.API_V1_PREFIX}", tags=["Autenticación"])
+app.include_router(
+    users.router, prefix=f"{settings.API_V1_PREFIX}/users", tags=["Usuarios"])
