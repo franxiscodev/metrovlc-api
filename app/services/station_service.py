@@ -36,7 +36,7 @@ def get_station_by_id(db: Session, station_id: int) -> Station:
 
 
 def get_station_by_code(db: Session, station_code: str) -> Station:
-    return de.query(Station).filter(Station.codigo == station_code).first()
+    return db.query(Station).filter(Station.codigo == station_code).first()
 
 
 def add_favorite_station(db: Session, user: User, station_id: int) -> Station:
