@@ -57,6 +57,27 @@ class ArrivalInfo(BaseModel):
     tipo: str | None = None
 
 
+class StationDepartures(BaseModel):
+    """
+    Schema para llegadas de una estación.
+    """
+    station_id: int
+    station_name: str
+    station_code: str
+    arrivals: List[ArrivalInfo]
+    has_data: bool
+    message: str | None = None
+
+
+class DeparturesResponse(BaseModel):
+    """
+    Schema para respuesta completa de llegadas de todas las estaciones favoritas.
+    """
+    departures: List[StationDepartures]
+    total_stations: int
+    timestamp: str
+
+
 # Fsavoritos
 class AddFavoriteResponse(BaseModel):
     """
