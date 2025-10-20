@@ -115,3 +115,111 @@ def format_departures_response(stations_data: List[Dict]) -> Dict:
         "total_stations": len(stations_data),
         "timestamp": datetime.utcnow().isoformat()
     }
+
+
+def get_station_departures_2(station_code: str) -> Dict:
+    url = f"https://www.fgv.es/ap18/api/public/es/api/v1/V/horarios-prevision-3/{station_code}"
+
+    try:
+        response = requests.get(
+            url,
+            timeout=settings.METRO_API_TIMEOUT
+        )
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not data or not data.get("previsiones"):
+            return {
+                "has_data": False,
+                "arrivals": [],
+                "message": "No hay información disponible en este momento"
+            }
+
+        arrivals = []
+        lineas_procesadas = set()  # Para evitar duplicados
+
+        # Recorrer cada línea en previsiones
+        for linea_info in data.get("previsiones", []):
+            linea_numero = linea_info.get("line")
+            linea_id = linea_info.get("linea_id_interna")
+
+            # Procesar cada tren en la línea
+            for tren in linea_info.get("trains", []):
+                destino = tren.get("destino", "Destino no disponible")
+                segundos = tren.get("seconds", 0)
+
+                # Filtrar datos no válidos
+                if (segundos is not None and segundos > 0 and
+                    destino and destino.strip() and
+                        destino != "Destino no disponible"):
+
+                    # Calcular minutos (redondeado)
+                    minutos = max(1, round(segundos / 60))
+
+                    # Determinar estado basado en tiempo
+                    if segundos <= 120:  # 2 minutos o menos
+                        estado = "INMINENTE"
+                    elif segundos <= 300:  # 5 minutos o menos
+                        estado = "PRÓXIMO"
+                    else:
+                        estado = "EN RUTA"
+
+                    arrival = {
+                        "linea": linea_numero,
+                        "linea_id": linea_id,
+                        # Corregir encoding
+                        "destino": destino.replace("?", "ó"),
+                        "tiempo_segundos": segundos,
+                        "tiempo_minutos": minutos,
+                        "estado": estado,
+                        "vehiculo": tren.get("vehicle", "N/A"),
+                        "cabecera": tren.get("cabecera", False)
+                    }
+
+                    arrivals.append(arrival)
+                    lineas_procesadas.add(linea_numero)
+
+        # Ordenar por tiempo de llegada (más cercano primero)
+        arrivals.sort(key=lambda x: x["tiempo_segundos"])
+
+        return {
+            "has_data": len(arrivals) > 0,
+            "arrivals": arrivals,
+            "summary": {
+                "total_llegadas": len(arrivals),
+                "lineas_activas": list(lineas_procesadas),
+                "proxima_llegada": arrivals[0] if arrivals else None,
+                "estacion_codigo": station_code
+            },
+            "message": f"{len(arrivals)} llegadas encontradas" if arrivals else "No hay llegadas programadas"
+        }
+
+    except requests.Timeout:
+        return {
+            "has_data": False,
+            "arrivals": [],
+            "message": f"Timeout: La API tardó más de {settings.METRO_API_TIMEOUT} segundos en responder"
+        }
+
+    except requests.ConnectionError:
+        return {
+            "has_data": False,
+            "arrivals": [],
+            "message": "Error de conexión: No se pudo conectar con el servicio de información"
+        }
+
+    except requests.HTTPError as e:
+        status_code = e.response.status_code if e.response else "N/A"
+        return {
+            "has_data": False,
+            "arrivals": [],
+            "message": f"Error HTTP {status_code}: El servicio no está disponible para la estación {station_code}"
+        }
+
+    except Exception as e:
+        return {
+            "has_data": False,
+            "arrivals": [],
+            "message": f"Error inesperado: {str(e)}"
+        }
