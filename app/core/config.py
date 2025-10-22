@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     METRO_API_BASE_URL: str = "https://geoportal.valencia.es/geoportal-services/api/v1"
     METRO_API_TIMEOUT: int = 10
 
-    # NUEVA API FGV la anterior es muy inestable
+    # NUEVA API FGV (la anterior es muy inestable)
     FGV_API_BASE_URL: str = "https://www.fgv.es/ap18/api/public/es/api/v1/V/horarios-prevision-3"
 
     TEST_USERNAME: str = "test_user"
