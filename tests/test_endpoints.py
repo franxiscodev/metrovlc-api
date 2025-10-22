@@ -177,7 +177,6 @@ def test_list_lines(token):
 
 
 def test_filter_by_line(token, line):
-    line = 5
     """06: Filtrar estaciones por línea"""
     print_section(f"06: FILTRAR ESTACIONES POR LiNEA ({line})")
 
@@ -194,12 +193,126 @@ def test_filter_by_line(token, line):
         print(f"OK Filtrado exitoso")
         print(f"   Total estaciones de {line}: {len(stations)}")
         if len(stations) > 0:
-            print(f"   Primeras 5 estaciones: {len(stations)}")
+            print(f"   Estaciones cant.: {len(stations)}")
             for station in stations:
                 print(f"   - {station['nombre']}")
         return True
     else:
         print(f"KO Error al filtrar por línea")
+        return False
+
+
+def test_add_favorite(token, station_id):
+    """07: Añadir estación a favoritos"""
+    print_section(f"07: AÑADIR ESTACIÓN A FAVORITOS (ID: {station_id})")
+
+    url = f"{settings.BASE_URL}/users/me/stations/{station_id}"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"POST {url}")
+
+    response = requests.post(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 201:
+        data = response.json()
+        print(f"OK: Estación añadida a favoritos")
+        print(f"   Estación: {data['station']['nombre']}")
+        print(f"   Total favoritos: {data['total_favorites']}")
+        return True
+    else:
+        print("KO: Error al añadir favorito")
+        return False
+
+
+def test_list_favorites(token):
+    """08: Listar estaciones favoritas"""
+    print_section("08: LISTAR ESTACIONES FAVORITAS")
+
+    url = f"{settings.BASE_URL}/users/me/stations"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"GET {url}")
+
+    response = requests.get(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 200:
+        data = response.json()
+        print(f"OK Favoritos obtenidos correctamente")
+        print(f"   Total favoritos: {data['total']}")
+        if data['total'] > 0:
+            print(f"   Estaciones favoritas:")
+            for station in data['favorites']:
+                print(f"   - {station['nombre']} (Línea: {station['linea']})")
+        return True
+    else:
+        print("KO Error al obtener favoritos")
+        return False
+
+
+def test_get_departures(token):
+    """09: Consultar llegadas de estaciones favoritas"""
+    print_section("09: CONSULTAR LLEGADAS EN TIEMPO REAL")
+
+    url = f"{settings.BASE_URL}/users/me/departures"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"GET {url}")
+    print("⏳ Consultando API externa del Geoportal de Valencia...")
+
+    response = requests.get(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 200:
+        data = response.json()
+        print(f"OK: Consulta de llegadas exitosa")
+        print(f"   Total estaciones consultadas: {data['total_stations']}")
+        print(f"   Timestamp: {data['timestamp']}")
+
+        if data['total_stations'] > 0:
+            print(f"\n   *** Detalles de llegadas:")
+            for departure in data['departures']:
+                print(
+                    f"\n   Estación: {departure['station_name']} (Código: {departure['station_code']})")
+
+                if departure['has_data']:
+                    print(f"   OK: Tiene información actulizada")
+                    print(f"   Llegadas: {len(departure['arrivals'])}")
+                    for i, arrival in enumerate(departure['arrivals'][:3], 1):
+                        print(
+                            f"      {i}. Línea {arrival.get('linea', 'N/A')} → {arrival.get('destino', 'N/A')} - {arrival.get('tiempo', 'N/A')}")
+                else:
+                    print(
+                        f"   ---  Sin info: {departure.get('message', 'No disponible')}")
+
+        return True
+    else:
+        print("KO: Error al consultar llegadas")
+        return False
+
+
+def test_remove_favorite(token, station_id):
+    """10: Eliminar estación de favoritos"""
+    print_section(
+        f"10: ELIMINAR ESTACIÓN DE FAVORITOS (ID: {station_id})")
+
+    url = f"{settings.BASE_URL}/users/me/stations/{station_id}"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"DELETE {url}")
+
+    response = requests.delete(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 200:
+        data = response.json()
+        print(f"O: Estación eliminada de favoritos")
+        print(f"   Estación: {data['station']['nombre']}")
+        print(f"   Total favoritos restantes: {data['total_favorites']}")
+        return True
+    else:
+        print("KO: Error al eliminar favorito")
         return False
 
 
@@ -234,6 +347,20 @@ def run_all_tests():
     # 6.- Filtrar por línea
     if line:
         test_filter_by_line(token, line)
+
+    # 7.- Añadir a favorito
+    if station_id:
+        test_add_favorite(token, station_id)
+
+    # 8.- Listar favoritos
+    test_list_favorites(token)
+
+    # 9.- Consultar llegadas
+    test_get_departures(token)
+
+    # 10.- Eliminar favorito
+    if station_id:
+        test_remove_favorite(token, station_id)
 
     # Fin de los test si llega aca esta todo ok
     print("Todos los test OK")
