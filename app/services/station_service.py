@@ -2,6 +2,7 @@
 Estaciones
 buscar - filtrar - favoritas
 """
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from typing import List
@@ -20,8 +21,16 @@ def search_stations(db: Session, query: str, limit: int = 5) -> List[Station]:
 
 
 def get_stations_by_line(db: Session, line_id: str) -> List[Station]:
+    """stations = db.query(Station).filter(
+        Station.linea == line_id).order_by(Station.nombre).all()"""
     stations = db.query(Station).filter(
-        Station.linea == line_id).order_by(Station.nombre).all()
+        or_(
+            Station.linea == line_id,
+            Station.linea.startswith(f"{line_id},"),
+            Station.linea.endswith(f",{line_id}"),
+            Station.linea.like(f"%,{line_id},%")
+        )
+    ).order_by(Station.nombre).all()
     return stations
 
 
