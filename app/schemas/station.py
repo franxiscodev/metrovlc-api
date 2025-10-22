@@ -50,11 +50,22 @@ class StationSearchResponse(BaseModel):
 
 
 # llegadas de coches
+# modificada x API FGV mejorada
 class ArrivalInfo(BaseModel):
     linea: str | None = None
+    linea_id: str | None = None
     destino: str | None = None
-    tiempo: str | None = None
-    tipo: str | None = None
+    tiempo_segundos: int | None = None
+    tiempo_minutos: int | None = None
+    estado: str | None = None  # las opciones dde INMINENTE, PROXIMO, EN RUTA
+
+
+# llegadas a una estacion x API FGV mejorada
+class ArrivalSummary(BaseModel):
+    total_llegadas: int
+    lineas_activas: List[str]
+    proxima_llegada: ArrivalInfo | None = None
+    estacion_codigo: str
 
 
 class StationDepartures(BaseModel):
@@ -66,6 +77,7 @@ class StationDepartures(BaseModel):
     station_code: str
     arrivals: List[ArrivalInfo]
     has_data: bool
+    summary: ArrivalSummary | None = None
     message: str | None = None
 
 
@@ -76,6 +88,10 @@ class DeparturesResponse(BaseModel):
     departures: List[StationDepartures]
     total_stations: int
     timestamp: str
+
+    class Config:
+        # Permitir campos extra para mayor flexibilidad
+        extra = "allow"
 
 
 # Fsavoritos

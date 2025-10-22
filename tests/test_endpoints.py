@@ -10,6 +10,7 @@ import json
 from app.core.config import settings
 
 print(f"BASE_URL: {settings.BASE_URL}")
+print(f"FGV_API_BASE_URL: {settings.FGV_API_BASE_URL}")
 print(f"DATABASE_URL: {settings.DATABASE_URL}")
 print(f"TEST_USERNAME: {settings.TEST_USERNAME}")
 print(f"TEST_EMAIL: {settings.TEST_EMAIL}")
@@ -259,7 +260,7 @@ def test_get_departures(token):
     headers = {"Authorization": f"Bearer {token}"}
 
     print(f"GET {url}")
-    print("⏳ Consultando API externa del Geoportal de Valencia...")
+    print("⏳ Consultando API externa FGV Valencia...")
 
     response = requests.get(url, headers=headers)
     print_response("Respuesta:", response)
