@@ -1,0 +1,16 @@
+"""
+Test de configuraciones
+ejecutar
+python -m tests.test_config
+"""
+
+from app.core.config import settings
+print("=== Configuración general de la app ===")
+print(f"Proyecto: {settings.PROJECT_NAME}")
+print(f"Versión: {settings.VERSION}")
+print(f"API Prefix: {settings.API_V1_PREFIX}")
+print(f"Database: {settings.DATABASE_URL}")
+print(f"Secret Key configurada: {'SI' if settings.SECRET_KEY else 'NO'}")
+print(f"Metro API: {settings.METRO_API_BASE_URL}")
+print(f"Timeout: {settings.METRO_API_TIMEOUT} segundos")
+print(f"Token expira en: {settings.ACCESS_TOKEN_EXPIRE_MINUTES} minutos")
