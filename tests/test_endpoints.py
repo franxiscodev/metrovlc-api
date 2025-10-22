@@ -85,6 +85,31 @@ def test_login():
         return None
 
 
+def test_get_profile(token):
+    """03: Obtener perfil del usuario"""
+    print_section("03: OBTENER PERFIL (GET /users/me)")
+
+    url = f"{settings.BASE_URL}/users/me"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"GET {url}")
+    print(f"Headers: Authorization: Bearer {token[:30]}...")
+
+    response = requests.get(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 200:
+        data = response.json()
+        print(f"OK: Perfil obtenido correctamente")
+        print(f"   Username: {data['user']['username']}")
+        print(f"   Email: {data['user']['email']}")
+        print(f"   Favoritos: {data['fav_stations_count']}")
+        return True
+    else:
+        print("KO: Error al obtener perfil")
+        return False
+
+
 def test_search_stations(token):
     """04: Buscar estaciones"""
     print_section("04: BUSCAR ESTACIONES")
@@ -128,6 +153,56 @@ def test_search_stations(token):
     return station_id
 
 
+def test_list_lines(token):
+    """05: Listar líneas de metro"""
+    print_section("05: LISTAR LiNEAS DE METRO")
+
+    url = f"{settings.BASE_URL}/stations/lines"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"GET {url}")
+
+    response = requests.get(url, headers=headers)
+    print_response("Respuesta:", response)
+
+    if response.status_code == 200:
+        lines = response.json()
+        print(f"OK: Líneas obtenidas correctamente")
+        print(f"   Total líneas: {len(lines)}")
+        print(f"   Líneas: {', '.join(lines)}")
+        return lines[0] if lines else None
+    else:
+        print("KO Error al obtener líneas")
+        return None
+
+
+def test_filter_by_line(token, line):
+    line = 5
+    """06: Filtrar estaciones por línea"""
+    print_section(f"06: FILTRAR ESTACIONES POR LiNEA ({line})")
+
+    url = f"{settings.BASE_URL}/stations/"
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"linea": line}
+
+    print(f"GET {url}?linea={line}")
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        stations = response.json()
+        print(f"OK Filtrado exitoso")
+        print(f"   Total estaciones de {line}: {len(stations)}")
+        if len(stations) > 0:
+            print(f"   Primeras 5 estaciones: {len(stations)}")
+            for station in stations:
+                print(f"   - {station['nombre']}")
+        return True
+    else:
+        print(f"KO Error al filtrar por línea")
+        return False
+
+
 def run_all_tests():
     """
     Ejecuta todos los tests en orden
@@ -137,18 +212,35 @@ def run_all_tests():
     print("TESTS COMPLETOS DE LA API - METROVALENCIA")
     print("🚇 "*30)
 
+    # 1.- Registro
     test_register()
 
+    # 2.- Login
     token = test_login()
     print(token)
     if not token:
         print("***** KO Tests cancelados por error en el login ******")
         return
 
-    test_search_stations(token)
+    # 3.- Mi Perfil
+    test_get_profile(token)
+
+    # 4.- Buscar estaciones  -> la guardo para luego aggregar a fav
+    station_id = test_search_stations(token)
+
+    # 5.- Listar las lineas del metro -> la guardo para luego filtrar x linea
+    line = test_list_lines(token)
+
+    # 6.- Filtrar por línea
+    if line:
+        test_filter_by_line(token, line)
 
     # Fin de los test si llega aca esta todo ok
     print("Todos los test OK")
+
+    # BORRAR
+    print(station_id)
+    print(line)
 
 
 if __name__ == "__main__":
